@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Mind Wellness</string>
+    <string name="title_activity_main">Mind Wellness</string>
+    <string name="package_name">com.mindwellness.app</string>
+    <string name="custom_url_scheme">com.mindwellness.app</string>
+    <string name="app_description">Your personal mindfulness and mental wellness companion. Track mood, meditation, sleep, nutrition and more.</string>
+</resources>

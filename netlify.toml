@@ -1,0 +1,10 @@
+# This file is for configuring your site on Netlify.
+# The current AI backend is configured for Firebase App Hosting.
+# For full functionality, including AI features, deploying to Firebase is recommended.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
