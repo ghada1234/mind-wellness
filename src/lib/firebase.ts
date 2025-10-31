@@ -24,8 +24,26 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // Initialize Analytics and export it for use in other parts of the app
-const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);
+let analytics: any = null;
 
+// Initialize analytics only on client side
+if (typeof window !== 'undefined') {
+  try {
+    isSupported().then((supported) => {
+      if (supported) {
+        try {
+          analytics = getAnalytics(app);
+        } catch (error) {
+          console.warn('Failed to initialize Firebase Analytics:', error);
+        }
+      }
+    }).catch((error) => {
+      console.warn('Firebase Analytics not supported:', error);
+    });
+  } catch (error) {
+    console.warn('Error checking Firebase Analytics support:', error);
+  }
+}
 
 export { app, auth, db, analytics };
 

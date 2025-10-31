@@ -93,23 +93,38 @@ export default function AnalyticsAdminPage() {
       const users: UserData[] = [];
 
       usersSnapshot.forEach((doc) => {
-        const data = doc.data();
-        totalUsers++;
+        try {
+          const data = doc.data();
+          totalUsers++;
 
-        const createdAt = data.createdAt?.toDate() || new Date();
-        const lastActive = data.lastActive?.toDate();
+          // Handle Firestore Timestamp or Date objects
+          let createdAt: Date;
+          let lastActive: Date | undefined;
 
-        users.push({
-          id: doc.id,
-          email: data.email || 'N/A',
-          createdAt,
-          lastActive
-        });
+          if (data.createdAt) {
+            createdAt = data.createdAt?.toDate ? data.createdAt.toDate() : (data.createdAt instanceof Date ? data.createdAt : new Date());
+          } else {
+            createdAt = new Date();
+          }
 
-        if (createdAt >= todayStart) todayUsers++;
-        if (createdAt >= weekStart) weekUsers++;
-        if (createdAt >= monthStart) monthUsers++;
-        if (lastActive && lastActive >= todayStart) activeToday++;
+          if (data.lastActive) {
+            lastActive = data.lastActive?.toDate ? data.lastActive.toDate() : (data.lastActive instanceof Date ? data.lastActive : undefined);
+          }
+
+          users.push({
+            id: doc.id,
+            email: data.email || 'N/A',
+            createdAt,
+            lastActive
+          });
+
+          if (createdAt >= todayStart) todayUsers++;
+          if (createdAt >= weekStart) weekUsers++;
+          if (createdAt >= monthStart) monthUsers++;
+          if (lastActive && lastActive >= todayStart) activeToday++;
+        } catch (error) {
+          console.error(`Error processing user ${doc.id}:`, error);
+        }
       });
 
       setStats({
