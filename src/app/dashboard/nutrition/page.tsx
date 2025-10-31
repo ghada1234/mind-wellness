@@ -202,8 +202,10 @@ interface MoodEntry {
   id: string;
   mood: string;
   energy: string;
-  notes?: string;
-  date?: string;
+  influences: string[];
+  notes: string;
+  date: string;
+  createdAt: Timestamp | Date;
 }
 
 export default function NutritionTrackerPage() {
@@ -245,7 +247,7 @@ export default function NutritionTrackerPage() {
           const result = await getFoodRecommendationsByMood({
             mood: latestMood.mood,
             energy: latestMood.energy,
-            notes: latestMood.notes,
+            notes: latestMood.notes || undefined,
           });
           setMoodRecommendations(result);
         } catch (error) {
