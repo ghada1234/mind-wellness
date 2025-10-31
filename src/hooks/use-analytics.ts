@@ -1,31 +1,33 @@
 import { getAnalyticsInstance } from '@/lib/firebase';
 
 export const useAnalytics = () => {
-  const logEvent = async (eventName: string, eventParams?: { [key: string]: any }) => {
+  const logEvent = (eventName: string, eventParams?: { [key: string]: any }) => {
     // Only log on client side
     if (typeof window === 'undefined') {
       return;
     }
 
     try {
-      // Get analytics instance (waits for initialization if needed)
-      const analyticsInstance = await getAnalyticsInstance();
+      // Get analytics instance
+      const analyticsInstance = getAnalyticsInstance();
       
       if (analyticsInstance) {
         try {
-          // Dynamically import logEvent to avoid SSR issues
-          const { logEvent: firebaseLogEvent } = await import('firebase/analytics');
-          firebaseLogEvent(analyticsInstance, eventName, eventParams);
+          // Dynamically import and log event
+          import('firebase/analytics').then(({ logEvent: firebaseLogEvent }) => {
+            firebaseLogEvent(analyticsInstance, eventName, eventParams);
+          }).catch(() => {
+            // Failed to load analytics module
+          });
         } catch (error) {
           console.warn('Error logging analytics event:', error);
         }
       } else {
-        // Analytics not available, but that's okay - fail silently
-        // Don't log to avoid console spam
+        // Analytics not initialized yet, but that's okay
+        // It will initialize automatically on next page load
       }
     } catch (error) {
-      // Analytics not available or not supported - fail silently
-      // Don't log to avoid console spam
+      // Analytics error - fail silently
     }
   };
 
