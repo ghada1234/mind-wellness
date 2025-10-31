@@ -3,7 +3,6 @@
 import { initializeApp, getApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { getAnalytics, isSupported } from 'firebase/analytics';
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -23,22 +22,27 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Initialize Analytics and export it for use in other parts of the app
+// Initialize Analytics only on client side (dynamic import to avoid SSR issues)
 let analytics: any = null;
 
 // Initialize analytics only on client side
 if (typeof window !== 'undefined') {
   try {
-    isSupported().then((supported) => {
-      if (supported) {
-        try {
-          analytics = getAnalytics(app);
-        } catch (error) {
-          console.warn('Failed to initialize Firebase Analytics:', error);
+    // Use dynamic import to avoid SSR issues
+    import('firebase/analytics').then(({ getAnalytics, isSupported }) => {
+      isSupported().then((supported) => {
+        if (supported) {
+          try {
+            analytics = getAnalytics(app);
+          } catch (error) {
+            console.warn('Failed to initialize Firebase Analytics:', error);
+          }
         }
-      }
+      }).catch((error) => {
+        console.warn('Firebase Analytics not supported:', error);
+      });
     }).catch((error) => {
-      console.warn('Firebase Analytics not supported:', error);
+      console.warn('Error loading Firebase Analytics:', error);
     });
   } catch (error) {
     console.warn('Error checking Firebase Analytics support:', error);

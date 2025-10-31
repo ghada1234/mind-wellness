@@ -54,6 +54,7 @@ interface Stats {
 
 export default function AnalyticsAdminPage() {
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0,
     todayUsers: 0,
@@ -66,12 +67,20 @@ export default function AnalyticsAdminPage() {
   const [activityData, setActivityData] = useState<any[]>([]);
 
   useEffect(() => {
+    setMounted(true);
     fetchUserAnalytics();
   }, []);
 
   const fetchUserAnalytics = async () => {
     try {
       setLoading(true);
+
+      // Check if db is available
+      if (!db) {
+        console.error('Firestore database not initialized');
+        setLoading(false);
+        return;
+      }
 
       // Get all users from Firestore
       // Note: User metadata is stored when users log in (via useUserTracking hook)
@@ -187,23 +196,39 @@ export default function AnalyticsAdminPage() {
 
   const generateActivityData = async () => {
     try {
+      if (!db) {
+        console.warn('Firestore database not available for activity data');
+        setActivityData([]);
+        return;
+      }
+
       // Get activity from different collections
       const collections_to_check = ['moods', 'journals', 'meditations', 'sleepLogs', 'waterIntake'];
       const activityCounts = [];
 
       for (const collectionName of collections_to_check) {
-        const collRef = collection(db, collectionName);
-        const snapshot = await getDocs(query(collRef, limit(1000)));
-        
-        activityCounts.push({
-          name: collectionName.charAt(0).toUpperCase() + collectionName.slice(1),
-          count: snapshot.size
-        });
+        try {
+          const collRef = collection(db, collectionName);
+          const snapshot = await getDocs(query(collRef, limit(1000)));
+          
+          activityCounts.push({
+            name: collectionName.charAt(0).toUpperCase() + collectionName.slice(1),
+            count: snapshot.size
+          });
+        } catch (error) {
+          console.warn(`Error fetching ${collectionName}:`, error);
+          // Continue with other collections even if one fails
+          activityCounts.push({
+            name: collectionName.charAt(0).toUpperCase() + collectionName.slice(1),
+            count: 0
+          });
+        }
       }
 
       setActivityData(activityCounts);
     } catch (error) {
       console.error('Error fetching activity data:', error);
+      setActivityData([]);
     }
   };
 
@@ -226,6 +251,31 @@ export default function AnalyticsAdminPage() {
     if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
     return formatDate(date);
   };
+
+  // Prevent SSR issues with charts - only render on client
+  if (!mounted) {
+    return (
+      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+        <div className="flex items-center justify-between space-y-2">
+          <h2 className="text-3xl font-bold tracking-tight">Analytics Dashboard</h2>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <Skeleton className="h-4 w-[100px]" />
+                <Skeleton className="h-4 w-4 rounded-full" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-[60px] mb-2" />
+                <Skeleton className="h-3 w-[120px]" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
