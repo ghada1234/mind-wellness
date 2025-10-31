@@ -1,8 +1,9 @@
 {
   "name": "Mind Wellness - Mindfulness & Mental Health",
   "short_name": "Mind Wellness",
-  "description": "Your personal mindfulness and mental wellness companion",
+  "description": "Your personal mindfulness and mental wellness companion. Track mood, meditation, sleep, nutrition and more.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#6366f1",
@@ -27,6 +28,15 @@
       "src": "/screenshot-1.png",
       "sizes": "1080x1920",
       "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your wellness dashboard",
+      "url": "/dashboard",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
