@@ -89,10 +89,10 @@ export function SidebarNav() {
                   isActive={pathname === item.href}
                   tooltip={item.label}
                 >
-                  <a href={item.href}>
+                  <Link href={item.href}>
                     <item.icon />
                     <span>{item.label}</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
@@ -106,13 +106,13 @@ export function SidebarNav() {
                   isActive={pathname === item.href}
                   tooltip={item.label}
                 >
-                  <a href={item.href}>
+                  <Link href={item.href}>
                     <item.icon />
                     <span>{item.label}</span>
                     {item.label === 'Reminders' && reminders.length > 0 && (
                       <SidebarMenuBadge>{reminders.length}</SidebarMenuBadge>
                     )}
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
