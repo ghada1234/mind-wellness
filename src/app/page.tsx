@@ -189,18 +189,19 @@ export default function LandingPage() {
           </div>
         </section>
       </main>
-      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t bg-card">
-        <p className="text-xs text-muted-foreground">
-          &copy; 2025 Find Your Inner Peace. All rights reserved.
-        </p>
-        <nav className="sm:ml-auto flex gap-4 sm:gap-6">
-          <Link
-            href="#"
-            className="text-xs hover:underline underline-offset-4"
-            prefetch={false}
-          >
-            Privacy Policy
-          </Link>
+      <footer className="flex flex-col gap-4 py-8 w-full shrink-0 items-center px-4 md:px-6 border-t bg-card">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 items-center w-full">
+          <p className="text-xs text-muted-foreground">
+            &copy; 2025 Find Your Inner Peace. All rights reserved.
+          </p>
+          <nav className="sm:ml-auto flex gap-4 sm:gap-6">
+            <Link
+              href="#"
+              className="text-xs hover:underline underline-offset-4"
+              prefetch={false}
+            >
+              Privacy Policy
+            </Link>
           <Link
             href="#"
             className="text-xs hover:underline underline-offset-4"
@@ -208,7 +209,24 @@ export default function LandingPage() {
           >
             Terms of Service
           </Link>
-        </nav>
+          <Link
+            href="/contact"
+            className="text-xs hover:underline underline-offset-4"
+            prefetch={false}
+          >
+            Contact
+          </Link>
+          </nav>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-center text-xs text-muted-foreground">
+          <a href="mailto:ghadaabdulaziz1@gmail.com" className="hover:underline">
+            📧 ghadaabdulaziz1@gmail.com
+          </a>
+          <span className="hidden sm:inline">•</span>
+          <a href="tel:+971501550291" className="hover:underline">
+            📱 +971 50 155 0291
+          </a>
+        </div>
       </footer>
     </div>
   );

@@ -12,22 +12,19 @@ import {
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
-  BrainCircuit,
   BedDouble,
   Activity,
   Apple,
   Smile,
-  Wind,
   BookText,
   HeartHandshake,
   Bell,
   Sparkles,
   HeartPulse,
   Settings,
-  Brain,
-  Video,
   Droplets,
   BarChart3,
+  BrainCircuit,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { Logo } from '@/components/logo';
@@ -40,18 +37,16 @@ import { useReminders } from '@/context/reminders-context';
 
 const mainNav = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/dashboard/meditation', icon: BrainCircuit, label: 'Meditation' },
+  { href: '/dashboard/practice', icon: BrainCircuit, label: 'Practice' },
   { href: '/dashboard/sleep', icon: BedDouble, label: 'Sleep' },
   { href: '/dashboard/activity', icon: Activity, label: 'Activity' },
   { href: '/dashboard/nutrition', icon: Apple, label: 'Nutrition' },
   { href: '/dashboard/mood', icon: Smile, label: 'Mood' },
-  { href: '/dashboard/breathing', icon: Wind, label: 'Breathing' },
   { href: '/dashboard/journal', icon: BookText, label: 'Journal' },
 ];
 
 const secondaryNav = [
   { href: '/dashboard/self-love', icon: HeartHandshake, label: 'Self Love' },
-  { href: '/dashboard/mindfulness', icon: Brain, label: 'Mindfulness' },
   { href: '/dashboard/reminders', icon: Bell, label: 'Reminders' },
   { href: '/dashboard/water', icon: Droplets, label: 'Water Log' },
   { href: '/dashboard/ai-hub', icon: Sparkles, label: 'AI Hub' },
