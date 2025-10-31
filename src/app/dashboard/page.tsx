@@ -116,7 +116,7 @@ export default function Home() {
             <RecentLogsTable />
         </div>
         <div className="lg:col-span-1">
-          <ActivityFeed />
+        <ActivityFeed />
         </div>
       </div>
       {/* CTA Cards - Visible on all screen sizes */}

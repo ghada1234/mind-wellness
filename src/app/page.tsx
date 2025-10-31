@@ -191,17 +191,17 @@ export default function LandingPage() {
       </main>
       <footer className="flex flex-col gap-4 py-8 w-full shrink-0 items-center px-4 md:px-6 border-t bg-card">
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 items-center w-full">
-          <p className="text-xs text-muted-foreground">
-            &copy; 2025 Find Your Inner Peace. All rights reserved.
-          </p>
-          <nav className="sm:ml-auto flex gap-4 sm:gap-6">
-            <Link
-              href="#"
-              className="text-xs hover:underline underline-offset-4"
-              prefetch={false}
-            >
-              Privacy Policy
-            </Link>
+        <p className="text-xs text-muted-foreground">
+          &copy; 2025 Find Your Inner Peace. All rights reserved.
+        </p>
+        <nav className="sm:ml-auto flex gap-4 sm:gap-6">
+          <Link
+            href="#"
+            className="text-xs hover:underline underline-offset-4"
+            prefetch={false}
+          >
+            Privacy Policy
+          </Link>
           <Link
             href="#"
             className="text-xs hover:underline underline-offset-4"
@@ -216,7 +216,7 @@ export default function LandingPage() {
           >
             Contact
           </Link>
-          </nav>
+        </nav>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-center text-xs text-muted-foreground">
           <a href="mailto:ghadaabdulaziz1@gmail.com" className="hover:underline">

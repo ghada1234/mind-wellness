@@ -42,10 +42,6 @@ const profileFormSchema = z.object({
     .string()
     .min(1, { message: 'Activity level is required.' }),
   goal: z.string().min(1, { message: 'Goal is required.' }),
-  cuisine: z.string().optional(),
-  allergies: z.string().optional(),
-  dislikes: z.string().optional(),
-  diet: z.string().optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileFormSchema>;
@@ -236,74 +232,6 @@ export default function ProfilePage() {
                     </FormItem>
                   )}
                 />
-              </div>
-              <div>
-                <h4 className="mb-4 font-medium">
-                  Preferences for AI Meal Planner (Optional)
-                </h4>
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                 <FormField
-                  control={form.control}
-                  name="cuisine"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Preferred Cuisine</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., Italian, Any" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                  <FormField
-                    control={form.control}
-                    name="allergies"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Allergies</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="e.g., Peanuts, Shellfish"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="dislikes"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Dislikes</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="e.g., Mushrooms, Olives"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="diet"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Dietary Preference</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="e.g., Vegan, Keto, Gluten-Free"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
               </div>
             </CardContent>
             <CardFooter>

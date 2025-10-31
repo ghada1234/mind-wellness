@@ -11,18 +11,18 @@ export const useAnalytics = () => {
       // Get analytics instance
       const analyticsInstance = getAnalyticsInstance();
       
-      if (analyticsInstance) {
+    if (analyticsInstance) {
         try {
           // Dynamically import and log event
           import('firebase/analytics').then(({ logEvent: firebaseLogEvent }) => {
-            firebaseLogEvent(analyticsInstance, eventName, eventParams);
+      firebaseLogEvent(analyticsInstance, eventName, eventParams);
           }).catch(() => {
             // Failed to load analytics module
           });
         } catch (error) {
           console.warn('Error logging analytics event:', error);
         }
-      } else {
+    } else {
         // Analytics not initialized yet, but that's okay
         // It will initialize automatically on next page load
       }
