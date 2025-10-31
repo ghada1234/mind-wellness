@@ -84,6 +84,7 @@ import {
 } from 'lucide-react';
 import { analyzeFoodPhoto, AnalyzeFoodPhotoOutput } from '@/ai/flows/analyze-food-photo';
 import { generateMealPlan, GenerateMealPlanOutput, GenerateMealPlanInput } from '@/ai/flows/generate-meal-plan';
+import { getFoodRecommendationsByMood, FoodRecommendationsByMoodOutput } from '@/ai/flows/food-recommendations-by-mood';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -197,9 +198,18 @@ const generatePlanText = (plan: GenerateMealPlanOutput, duration: number) => {
     return text;
 };
 
+interface MoodEntry {
+  id: string;
+  mood: string;
+  energy: string;
+  notes?: string;
+  date?: string;
+}
+
 export default function NutritionTrackerPage() {
   const { data: mealEntries, addDocument: addMealEntry, deleteDocument: deleteMealEntry } = useFirestore<MealEntry>('mealEntries', { daily: true });
   const { data: savedPlans, addDocument: addSavedPlan, deleteDocument: deleteSavedPlan, loading: savedPlansLoading } = useFirestore<SavedMealPlan>('savedMealPlans');
+  const { data: moodData } = useFirestore<MoodEntry>('moodEntries');
   const { waterIntake, updateWaterIntake, loading: waterLoading } = useWaterIntake();
 
 
@@ -210,6 +220,9 @@ export default function NutritionTrackerPage() {
   const [isGeneratingPlan, setIsGeneratingPlan] = React.useState(false);
   const [mealPlan, setMealPlan] = React.useState<GenerateMealPlanOutput | null>(null);
   const [activeTab, setActiveTab] = React.useState('today');
+  const [isLoadingMoodRecommendations, setIsLoadingMoodRecommendations] = React.useState(false);
+  const [moodRecommendations, setMoodRecommendations] = React.useState<FoodRecommendationsByMoodOutput | null>(null);
+  const [moodRecommendationsError, setMoodRecommendationsError] = React.useState<string | null>(null);
 
   const { toast } = useToast();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -220,6 +233,36 @@ export default function NutritionTrackerPage() {
       duration: 7,
     }
   });
+
+  // Fetch food recommendations based on mood when insights tab is opened
+  React.useEffect(() => {
+    if (activeTab === 'insights' && moodData.length > 0 && !moodRecommendations && !isLoadingMoodRecommendations) {
+      const fetchMoodRecommendations = async () => {
+        setIsLoadingMoodRecommendations(true);
+        setMoodRecommendationsError(null);
+        try {
+          const latestMood = moodData[0]; // Latest mood entry
+          const result = await getFoodRecommendationsByMood({
+            mood: latestMood.mood,
+            energy: latestMood.energy,
+            notes: latestMood.notes,
+          });
+          setMoodRecommendations(result);
+        } catch (error) {
+          console.error('Error fetching mood-based recommendations:', error);
+          setMoodRecommendationsError('Failed to load food recommendations. Please try again.');
+          toast({
+            variant: 'destructive',
+            title: 'Failed to Load Recommendations',
+            description: 'Could not generate food recommendations based on your mood.',
+          });
+        } finally {
+          setIsLoadingMoodRecommendations(false);
+        }
+      };
+      fetchMoodRecommendations();
+    }
+  }, [activeTab, moodData, moodRecommendations, isLoadingMoodRecommendations, toast]);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -710,21 +753,160 @@ export default function NutritionTrackerPage() {
           </div>
         </TabsContent>
         <TabsContent value="insights" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Weekly Report</CardTitle>
-              <CardDescription>A summary of your nutrition over the last seven days.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex h-[300px] flex-col items-center justify-center gap-4 text-center">
-              <AlertTriangle className="h-12 w-12 text-muted-foreground" />
-              <div className="space-y-1">
-                <h3 className="font-semibold">Not Enough Data</h3>
-                <p className="text-sm text-muted-foreground">
-                  Log your nutrition for at least 3 days to see AI-powered insights here.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            {/* Mood-Based Food Recommendations */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  Food Recommendations Based on Your Mood
+                </CardTitle>
+                <CardDescription>
+                  {moodData.length > 0 
+                    ? `Personalized food recommendations for your current mood: ${moodData[0].mood}`
+                    : 'Log your mood to get personalized food recommendations'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {moodData.length === 0 ? (
+                  <div className="flex h-[200px] flex-col items-center justify-center gap-4 text-center">
+                    <AlertTriangle className="h-12 w-12 text-muted-foreground" />
+                    <div className="space-y-1">
+                      <h3 className="font-semibold">No Mood Data</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Log your mood in the Mood Tracker to get personalized food recommendations.
+                      </p>
+                      <Button asChild className="mt-4">
+                        <Link href="/dashboard/mood">
+                          Go to Mood Tracker
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                ) : isLoadingMoodRecommendations ? (
+                  <div className="flex h-[200px] flex-col items-center justify-center gap-4">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <p className="text-sm text-muted-foreground">
+                      Generating personalized food recommendations...
+                    </p>
+                  </div>
+                ) : moodRecommendationsError ? (
+                  <div className="flex h-[200px] flex-col items-center justify-center gap-4 text-center">
+                    <AlertTriangle className="h-12 w-12 text-destructive" />
+                    <div className="space-y-1">
+                      <h3 className="font-semibold">Error</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {moodRecommendationsError}
+                      </p>
+                      <Button 
+                        variant="outline" 
+                        className="mt-4"
+                        onClick={async () => {
+                          setIsLoadingMoodRecommendations(true);
+                          setMoodRecommendationsError(null);
+                          try {
+                            const latestMood = moodData[0];
+                            const result = await getFoodRecommendationsByMood({
+                              mood: latestMood.mood,
+                              energy: latestMood.energy,
+                              notes: latestMood.notes,
+                            });
+                            setMoodRecommendations(result);
+                          } catch (error) {
+                            console.error('Error fetching mood-based recommendations:', error);
+                            setMoodRecommendationsError('Failed to load food recommendations. Please try again.');
+                          } finally {
+                            setIsLoadingMoodRecommendations(false);
+                          }
+                        }}
+                      >
+                        Try Again
+                      </Button>
+                    </div>
+                  </div>
+                ) : moodRecommendations ? (
+                  <div className="space-y-4">
+                    <div className="rounded-lg bg-muted p-4">
+                      <p className="text-sm text-muted-foreground">
+                        {moodRecommendations.explanation}
+                      </p>
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {moodRecommendations.recommendations.map((rec, index) => (
+                        <Card key={index}>
+                          <CardHeader>
+                            <CardTitle className="text-lg">{rec.name}</CardTitle>
+                            <CardDescription>{rec.description}</CardDescription>
+                          </CardHeader>
+                          <CardContent className="space-y-3">
+                            <div>
+                              <h4 className="text-sm font-semibold mb-1">Key Benefits:</h4>
+                              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                {rec.nutrients.map((nutrient, i) => (
+                                  <li key={i}>{nutrient}</li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-muted-foreground">Serving:</span>
+                              <span className="font-medium">{rec.serving}</span>
+                            </div>
+                            {rec.timing && (
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-muted-foreground">Best Time:</span>
+                                <span className="font-medium">{rec.timing}</span>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                    <Button
+                      variant="outline"
+                      onClick={async () => {
+                        setIsLoadingMoodRecommendations(true);
+                        setMoodRecommendations(null);
+                        setMoodRecommendationsError(null);
+                        try {
+                          const latestMood = moodData[0];
+                          const result = await getFoodRecommendationsByMood({
+                            mood: latestMood.mood,
+                            energy: latestMood.energy,
+                            notes: latestMood.notes,
+                          });
+                          setMoodRecommendations(result);
+                        } catch (error) {
+                          console.error('Error fetching mood-based recommendations:', error);
+                          setMoodRecommendationsError('Failed to load food recommendations. Please try again.');
+                        } finally {
+                          setIsLoadingMoodRecommendations(false);
+                        }
+                      }}
+                    >
+                      Refresh Recommendations
+                    </Button>
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
+
+            {/* Weekly Report */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Weekly Report</CardTitle>
+                <CardDescription>A summary of your nutrition over the last seven days.</CardDescription>
+              </CardHeader>
+              <CardContent className="flex h-[300px] flex-col items-center justify-center gap-4 text-center">
+                <AlertTriangle className="h-12 w-12 text-muted-foreground" />
+                <div className="space-y-1">
+                  <h3 className="font-semibold">Not Enough Data</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Log your nutrition for at least 3 days to see AI-powered insights here.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
         <TabsContent value="planner" className="mt-6">
             <div className="space-y-6">
