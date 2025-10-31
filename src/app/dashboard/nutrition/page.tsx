@@ -165,7 +165,7 @@ export default function NutritionTrackerPage() {
 
   const { toast } = useToast();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-
+  
   // Fetch food recommendations based on mood when insights tab is opened
   React.useEffect(() => {
     if (activeTab === 'insights' && moodData.length > 0 && !moodRecommendations && !isLoadingMoodRecommendations) {
@@ -281,7 +281,7 @@ export default function NutritionTrackerPage() {
     }
   };
 
-
+  
   const mealsByType = React.useMemo(() => {
     return mealEntries.reduce((acc, entry) => {
         if (!acc[entry.type]) {
@@ -584,8 +584,8 @@ export default function NutritionTrackerPage() {
         <TabsContent value="insights" className="mt-6">
           <div className="space-y-6">
             {/* Mood-Based Food Recommendations */}
-            <Card>
-              <CardHeader>
+          <Card>
+            <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-primary" />
                   Food Recommendations Based on Your Mood
@@ -595,36 +595,36 @@ export default function NutritionTrackerPage() {
                     ? `Personalized food recommendations for your current mood: ${moodData[0].mood}`
                     : 'Log your mood to get personalized food recommendations'}
                 </CardDescription>
-              </CardHeader>
+            </CardHeader>
               <CardContent>
                 {moodData.length === 0 ? (
                   <div className="flex h-[200px] flex-col items-center justify-center gap-4 text-center">
-                    <AlertTriangle className="h-12 w-12 text-muted-foreground" />
-                    <div className="space-y-1">
+              <AlertTriangle className="h-12 w-12 text-muted-foreground" />
+              <div className="space-y-1">
                       <h3 className="font-semibold">No Mood Data</h3>
-                      <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                         Log your mood in the Mood Tracker to get personalized food recommendations.
                       </p>
                       <Button asChild className="mt-4">
                         <Link href="/dashboard/mood">
                           Go to Mood Tracker
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
+                            </Link>
+                        </Button>
+            </div>
+                                                            </div>
                 ) : isLoadingMoodRecommendations ? (
                   <div className="flex h-[200px] flex-col items-center justify-center gap-4">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     <p className="text-sm text-muted-foreground">
                       Generating personalized food recommendations...
                     </p>
-                  </div>
+                                                            </div>
                 ) : moodRecommendationsError ? (
                   <div className="flex h-[200px] flex-col items-center justify-center gap-4 text-center">
                     <AlertTriangle className="h-12 w-12 text-destructive" />
-                    <div className="space-y-1">
+                  <div className="space-y-1">
                       <h3 className="font-semibold">Error</h3>
-                      <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                         {moodRecommendationsError}
                       </p>
                       <Button 
@@ -651,45 +651,45 @@ export default function NutritionTrackerPage() {
                       >
                         Try Again
                       </Button>
-                    </div>
                   </div>
+                </div>
                 ) : moodRecommendations ? (
-                  <div className="space-y-4">
+                         <div className="space-y-4">
                     <div className="rounded-lg bg-muted p-4">
                       <p className="text-sm text-muted-foreground">
                         {moodRecommendations.explanation}
                       </p>
-                    </div>
+                            </div>
                     <div className="grid gap-4 md:grid-cols-2">
                       {moodRecommendations.recommendations.map((rec, index) => (
                         <Card key={index}>
-                          <CardHeader>
+                                    <CardHeader>
                             <CardTitle className="text-lg">{rec.name}</CardTitle>
                             <CardDescription>{rec.description}</CardDescription>
-                          </CardHeader>
+                                    </CardHeader>
                           <CardContent className="space-y-3">
-                            <div>
+                                                            <div>
                               <h4 className="text-sm font-semibold mb-1">Key Benefits:</h4>
                               <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                                 {rec.nutrients.map((nutrient, i) => (
                                   <li key={i}>{nutrient}</li>
                                 ))}
-                              </ul>
-                            </div>
+                                                                </ul>
+                                                            </div>
                             <div className="flex items-center justify-between text-sm">
                               <span className="text-muted-foreground">Serving:</span>
                               <span className="font-medium">{rec.serving}</span>
-                            </div>
+                                                            </div>
                             {rec.timing && (
                               <div className="flex items-center justify-between text-sm">
                                 <span className="text-muted-foreground">Best Time:</span>
                                 <span className="font-medium">{rec.timing}</span>
-                              </div>
+                                                        </div>
                             )}
                           </CardContent>
                         </Card>
                       ))}
-                    </div>
+                                                        </div>
                     <Button
                       variant="outline"
                       onClick={async () => {
@@ -716,15 +716,15 @@ export default function NutritionTrackerPage() {
                     </Button>
                   </div>
                 ) : null}
-              </CardContent>
-            </Card>
+                                                    </CardContent>
+                                                </Card>
 
             {/* Weekly Report */}
             <Card>
-              <CardHeader>
+                                            <CardHeader>
                 <CardTitle>Weekly Report</CardTitle>
                 <CardDescription>A summary of your nutrition over the last seven days.</CardDescription>
-              </CardHeader>
+                                            </CardHeader>
               <CardContent className="flex h-[300px] flex-col items-center justify-center gap-4 text-center">
                 <AlertTriangle className="h-12 w-12 text-muted-foreground" />
                 <div className="space-y-1">
@@ -732,9 +732,9 @@ export default function NutritionTrackerPage() {
                   <p className="text-sm text-muted-foreground">
                     Log your nutrition for at least 3 days to see AI-powered insights here.
                   </p>
-                </div>
-              </CardContent>
-            </Card>
+                         </div>
+            </CardContent>
+          </Card>
           </div>
         </TabsContent>
       </Tabs>

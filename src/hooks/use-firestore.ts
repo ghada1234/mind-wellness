@@ -95,11 +95,28 @@ export const useFirestore = <T extends Document>(
         const q = query(collection(db, path), ...constraints);
         const querySnapshot = await getDocs(q);
 
-        const documents = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: (doc.data().createdAt as Timestamp).toDate(),
-        })) as T[];
+        const documents = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          // Handle both Firestore Timestamp and Date objects
+          let createdAtDate: Date;
+          if (data.createdAt) {
+            if (data.createdAt instanceof Date) {
+              createdAtDate = data.createdAt;
+            } else if (data.createdAt.toDate && typeof data.createdAt.toDate === 'function') {
+              createdAtDate = (data.createdAt as Timestamp).toDate();
+            } else {
+              createdAtDate = new Date();
+            }
+          } else {
+            createdAtDate = new Date();
+          }
+          
+          return {
+            id: doc.id,
+            ...data,
+            createdAt: createdAtDate,
+          };
+        }) as T[];
 
         const newLastDoc =
           querySnapshot.docs[querySnapshot.docs.length - 1] || null;
@@ -114,9 +131,19 @@ export const useFirestore = <T extends Document>(
           setData(documents);
         }
       } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error('Failed to fetch data')
-        );
+        const error = err instanceof Error ? err : new Error('Failed to fetch data');
+        setError(error);
+        // Log the error for debugging but don't crash the app
+        console.error(`Firestore error for ${path}:`, error);
+        // If it's a permissions error and user exists, they might not have data yet
+        if (error.message.includes('permission') || error.message.includes('Permission')) {
+          // Set empty data instead of showing error - user might just not have data yet
+          if (loadMore) {
+            setData((prev) => prev); // Keep existing data
+          } else {
+            setData([]); // Empty array if first load
+          }
+        }
       } finally {
         setLoading(false);
         setLoadingMore(false);

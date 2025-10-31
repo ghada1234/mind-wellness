@@ -75,11 +75,25 @@ const transformData = (collectionName: string, data: any[]): Activity[] => {
             case 'breathingLog': text = `Completed '${item.technique}' breathing`; break;
             default: text = 'Logged an activity';
         }
+        // Handle both Firestore Timestamp and Date objects
+        let createdAtDate: Date;
+        if (item.createdAt) {
+            if (item.createdAt instanceof Date) {
+                createdAtDate = item.createdAt;
+            } else if (typeof (item.createdAt as Timestamp)?.toDate === 'function') {
+                createdAtDate = (item.createdAt as Timestamp).toDate();
+            } else {
+                createdAtDate = new Date();
+            }
+        } else {
+            createdAtDate = new Date();
+        }
+
         return {
             id: item.id,
             type: Object.keys(typeToCollectionMap).find(key => typeToCollectionMap[key] === collectionName) || 'activity',
             text,
-            createdAt: (item.createdAt as Timestamp)?.toDate() || new Date(),
+            createdAt: createdAtDate,
         };
     });
 };
