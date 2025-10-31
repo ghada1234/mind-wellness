@@ -76,7 +76,8 @@ export default function Home() {
 
   return (
     <div className="flex-1 space-y-6 p-4 md:p-6">
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
+      {/* Stats Cards - Show all 5 on mobile in single column, responsive on larger screens */}
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard
           title={getStatTitle(sleepData, 'Sleep')}
           value={lastSleep}
@@ -108,13 +109,17 @@ export default function Home() {
           icon={Droplets}
         />
       </div>
+      {/* Main Content Area - All sections visible on mobile */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
             <DailyGoals />
             <RecentLogsTable />
         </div>
-        <ActivityFeed />
+        <div className="lg:col-span-1">
+          <ActivityFeed />
+        </div>
       </div>
+      {/* CTA Cards - Visible on all screen sizes */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <CtaCards />
       </div>
